@@ -1,16 +1,34 @@
 import sys
+import os
 
-# Simulated insecure code
-code = """
-API_KEY = "12345-SECRET-KEY"
-password = "admin123"
-"""
 
-secrets = ["API_KEY", "password", "SECRET"]
+HIGH_SEVERITY = ["API_KEY", "SECRET", "TOKEN"]
+LOW_SEVERITY = ["PASSWORD"]
 
-for secret in secrets:
-    if secret in code:
-        print(f"[SECURITY ISSUE] Hardcoded secret found: {secret}")
-        sys.exit(1)
+files_to_scan = ["app.py"]
 
-print("No security issues found.")
+issue_found=0
+
+for file in files_to_scan:
+    if not os.path.exists(file):
+        continue
+
+    with open(file,"r") as f:
+        content =f.read()    
+
+    for secret in HIGH_SEVERITY:
+        if secret in content:
+            print(f"[HIGH] Hardcoded secret found: {secret} in {file}")
+            issues_found = True
+
+    for secret in LOW_SEVERITY:
+        if secret in content:
+            print(f"[LOW] Potential secret found: {secret} in {file}")
+        
+        
+
+if issues_found:
+    print("Security scan failed.")
+    sys.exit(1)
+
+print("Security scan passed!!")    
